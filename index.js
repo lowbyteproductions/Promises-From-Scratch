@@ -25,4 +25,24 @@ class LLJSPromise {
       });
     }
   }
+
+  then() {
+
+  }
+
+  catch() {
+
+  }
+
+  finally() {
+
+  }
+
+  _onFulfilled() {
+
+  }
+
+  _onRejected() {
+
+  }
 }
