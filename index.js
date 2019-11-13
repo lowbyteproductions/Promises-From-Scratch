@@ -108,6 +108,11 @@ class LLJSPromise {
   }
 }
 
+LLJSPromise.resolve = value => new LLJSPromise(resolve => resolve(value));
+LLJSPromise.reject = value => new LLJSPromise((_, reject) => reject(value));
+
+
+
 const promise = new LLJSPromise((resolve, reject) => {
   setTimeout(() => {
     reject('Something went wrong');
@@ -119,7 +124,7 @@ const firstThen = promise.then(value => {
   return value + 1;
 }).catch(error => {
   console.log(`Got Error: ${error}`);
-  return 'recovered';
+  return LLJSPromise.resolve('recovered');
 });
 
 const secondThen = firstThen.then(value => {
