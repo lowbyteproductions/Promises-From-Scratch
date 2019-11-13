@@ -80,7 +80,13 @@ class LLJSPromise {
       }
     });
 
+    this._finallyQueue.forEach(([controlledPromise, sideEffectFn]) => {
+      sideEffectFn();
+      controlledPromise._onFulfilled(this._value);
+    });
+
     this._thenQueue = [];
+    this._finallyQueue = [];
   }
 
   _propagateRejected() {
@@ -101,7 +107,13 @@ class LLJSPromise {
       }
     });
 
+    this._finallyQueue.forEach(([controlledPromise, sideEffectFn]) => {
+      sideEffectFn();
+      controlledPromise._onFulfilled(this._value);
+    });
+
     this._thenQueue = [];
+    this._finallyQueue = [];
   }
 
   _onFulfilled(value) {
