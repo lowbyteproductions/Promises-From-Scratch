@@ -23,7 +23,9 @@ class LLJSPromise {
             this._onFulfilled.bind(this),
             this._onRejected.bind(this)
           )
-        } catch (ex) {}
+        } catch (ex) {
+          this._onRejected(ex);
+        }
       });
     }
   }
@@ -115,8 +117,9 @@ LLJSPromise.reject = value => new LLJSPromise((_, reject) => reject(value));
 
 const promise = new LLJSPromise((resolve, reject) => {
   setTimeout(() => {
-    reject('Something went wrong');
+    resolve(42);
   }, 1000);
+  throw new Error("this wasn't supposed to happen!");
 });
 
 const firstThen = promise.then(value => {
