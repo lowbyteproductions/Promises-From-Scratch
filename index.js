@@ -4,6 +4,8 @@ const states = {
   REJECTED: 'rejected'
 };
 
+const isThenable = maybePromise => maybePromise && typeof maybePromise.then === 'function';
+
 class LLJSPromise {
   constructor(computation) {
     this._state = states.PENDING;
@@ -48,7 +50,24 @@ class LLJSPromise {
   }
 
   _propagateFulfilled() {
+    this._thenQueue.forEach(([controlledPromise, fulfilledFn]) => {
+      if (typeof fulfilledFn === 'function') {
+        const valueOrPromise = fulfilledFn(this._value);
 
+        if (isThenable(valueOrPromise)) {
+          valueOrPromise.then(
+            value => controlledPromise._onFulfilled(value),
+            reason => controlledPromise._onRejected(reason)
+          );
+        } else {
+          controlledPromise._onFulfilled(valueOrPromise);
+        }
+      } else {
+        return controlledPromise._onFulfilled(this._value);
+      }
+    });
+
+    this._thenQueue = [];
   }
 
   _propagateRejected() {
@@ -74,7 +93,7 @@ class LLJSPromise {
 
 const promise = new LLJSPromise((resolve, reject) => {
   setTimeout(() => {
-    reject(42);
+    resolve(42);
     resolve(45);
   }, 1000);
 });
