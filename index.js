@@ -38,11 +38,34 @@ class LLJSPromise {
 
   }
 
-  _onFulfilled() {
+  _propagateFulfilled() {
 
   }
 
-  _onRejected() {
+  _propagateRejected() {
 
+  }
+
+  _onFulfilled(value) {
+    if (this._state === states.PENDING) {
+      this._state = states.FULFILLED;
+      this._value = value;
+      this._propagateFulfilled();
+    }
+  }
+
+  _onRejected(reason) {
+    if (this._state === states.PENDING) {
+      this._state = states.REJECTED;
+      this._reason = reason;
+      this._propagateRejected();
+    }
   }
 }
+
+const promise = new LLJSPromise((resolve, reject) => {
+  setTimeout(() => {
+    reject(42);
+    resolve(45);
+  }, 1000);
+});
