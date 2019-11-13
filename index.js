@@ -26,8 +26,17 @@ class LLJSPromise {
     }
   }
 
-  then() {
+  then(fulfilledFn, catchFn) {
+    const controlledPromise = new LLJSPromise();
+    this._thenQueue.push([controlledPromise, fulfilledFn, catchFn]);
 
+    if (this._state === states.FULFILLED) {
+      this._propagateFulfilled();
+    } else if (this._state === states.REJECTED) {
+      this._propagateRejected();
+    }
+
+    return controlledPromise;
   }
 
   catch() {
