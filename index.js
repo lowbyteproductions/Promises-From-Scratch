@@ -41,8 +41,8 @@ class LLJSPromise {
     return controlledPromise;
   }
 
-  catch() {
-
+  catch(catchFn) {
+    return this.then(undefined, catchFn);
   }
 
   finally() {
