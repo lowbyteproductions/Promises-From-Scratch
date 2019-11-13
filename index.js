@@ -47,8 +47,19 @@ class LLJSPromise {
     return this.then(undefined, catchFn);
   }
 
-  finally() {
+  finally(sideEffectFn) {
+    if (this._state !== states.PENDING) {
+      sideEffectFn();
 
+      return this._state === states.FULFILLED
+        ? LLJSPromise.resolve(this._value)
+        : LLJSPromise.reject(this._reason)
+    }
+
+    const controlledPromise = new LLJSPromise()
+    this._finallyQueue.push([controlledPromise, sideEffectFn]);
+
+    return controlledPromise;
   }
 
   _propagateFulfilled() {
