@@ -124,10 +124,13 @@ const firstThen = promise.then(value => {
   return value + 1;
 }).catch(error => {
   console.log(`Got Error: ${error}`);
-  return LLJSPromise.resolve('recovered');
+  return LLJSPromise.reject('errored again!');
 });
 
 const secondThen = firstThen.then(value => {
   console.log(`Got value: ${value}`);
   return value + 1;
+}).catch(error => {
+  console.log(`Got Error: ${error}`);
+  return 'recovered finally!';
 });
