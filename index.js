@@ -71,7 +71,24 @@ class LLJSPromise {
   }
 
   _propagateRejected() {
+    this._thenQueue.forEach(([controlledPromise, _, catchFn]) => {
+      if (typeof catchFn === 'function') {
+        const valueOrPromise = catchFn(this._reason);
 
+        if (isThenable(valueOrPromise)) {
+          valueOrPromise.then(
+            value => controlledPromise._onFulfilled(value),
+            reason => controlledPromise._onRejected(reason)
+          );
+        } else {
+          controlledPromise._onFulfilled(valueOrPromise);
+        }
+      } else {
+        return controlledPromise._onRejected(this._reason);
+      }
+    });
+
+    this._thenQueue = [];
   }
 
   _onFulfilled(value) {
