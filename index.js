@@ -22,7 +22,7 @@ class LLJSPromise {
           computation(
             this._onFulfilled.bind(this),
             this._onRejected.bind(this)
-          )
+          );
         } catch (ex) {
           this._onRejected(ex);
         }
@@ -52,8 +52,8 @@ class LLJSPromise {
       sideEffectFn();
 
       return this._state === states.FULFILLED
-        ? LLJSPromise.resolve(this._value)
-        : LLJSPromise.reject(this._reason)
+      ? LLJSPromise.resolve(this._value)
+      : LLJSPromise.reject(this._reason)
     }
 
     const controlledPromise = new LLJSPromise()
@@ -109,12 +109,13 @@ class LLJSPromise {
 
     this._finallyQueue.forEach(([controlledPromise, sideEffectFn]) => {
       sideEffectFn();
-      controlledPromise._onFulfilled(this._value);
+      controlledPromise._onRejected(this._value);
     });
 
     this._thenQueue = [];
     this._finallyQueue = [];
   }
+
 
   _onFulfilled(value) {
     if (this._state === states.PENDING) {
@@ -131,6 +132,7 @@ class LLJSPromise {
       this._propagateRejected();
     }
   }
+
 }
 
 LLJSPromise.resolve = value => new LLJSPromise(resolve => resolve(value));
@@ -138,25 +140,37 @@ LLJSPromise.reject = value => new LLJSPromise((_, reject) => reject(value));
 
 
 
-const promise = new LLJSPromise((resolve, reject) => {
+
+const fs = require('fs');
+const path = require('path');
+
+const readFile = (filename, encoding) => new LLJSPromise((resolve, reject) => {
+  fs.readFile(filename, encoding, (err, value) => {
+    if (err) {
+      return reject(err);
+    }
+    resolve(value);
+  })
+});
+
+const delay = (timeInMs, value) => new LLJSPromise(resolve => {
   setTimeout(() => {
-    resolve(42);
-  }, 1000);
-  throw new Error("this wasn't supposed to happen!");
+    resolve(value);
+  }, timeInMs);
 });
 
-const firstThen = promise.then(value => {
-  console.log(`Got value: ${value}`);
-  return value + 1;
-}).catch(error => {
-  console.log(`Got Error: ${error}`);
-  return LLJSPromise.reject('errored again!');
-});
-
-const secondThen = firstThen.then(value => {
-  console.log(`Got value: ${value}`);
-  return value + 1;
-}).catch(error => {
-  console.log(`Got Error: ${error}`);
-  return 'recovered finally!';
+readFile(path.join(__dirname, 'indexxxx.js'), 'utf8')
+.then(text => {
+  console.log(`${text.length} characters read`);
+  return delay(2000, text.replace(/[aeiou]/g, ''));
+})
+.then(newText => {
+  console.log(newText.slice(0, 200));
+})
+.catch(err => {
+  console.error('An error occured!');
+  console.error(err);
+})
+.finally(() => {
+  console.log('--- All done! ---');
 });
