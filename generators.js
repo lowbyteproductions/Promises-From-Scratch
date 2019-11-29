@@ -18,6 +18,8 @@ const interpreter = generatorFn => {
   interpreterLog('Got produced', produced);
   produced = producer.next();
   interpreterLog('Got produced', produced);
+  produced = producer.next();
+  interpreterLog('Got produced', produced);
 };
 
 interpreter(producerGeneratorFn);
