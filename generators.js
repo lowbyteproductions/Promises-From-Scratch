@@ -3,8 +3,10 @@ const producerLog = (...args) => console.log('\t[producer]', ...args);
 
 const producerGeneratorFn = function* (argumentValue) {
   producerLog('function argument:', argumentValue);
-  yield 1;
-  yield 2;
+  const a = yield 1;
+  producerLog('a was:', a);
+  const b = yield 2;
+  producerLog('b was:', b);
   return 3;
 };
 
