@@ -17,7 +17,7 @@ const interpreter = generatorFn => {
   let lastValue = undefined;
 
   while (!done) {
-    let produced = producer.next(lastValue);
+    let produced = producer.next(100 * lastValue);
     interpreterLog('Got produced', produced);
     done = produced.done;
     lastValue = produced.value;
