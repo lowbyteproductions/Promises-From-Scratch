@@ -11,15 +11,14 @@ const producerGeneratorFn = function* (argumentValue) {
 const interpreter = generatorFn => {
   interpreterLog('Creating the generator object');
   const producer = generatorFn("starting value");
+  let done = false;
 
-  let produced = producer.next();
-  interpreterLog('Got produced', produced);
-  produced = producer.next();
-  interpreterLog('Got produced', produced);
-  produced = producer.next();
-  interpreterLog('Got produced', produced);
-  produced = producer.next();
-  interpreterLog('Got produced', produced);
-};
+  while (!done) {
+    let produced = producer.next();
+    interpreterLog('Got produced', produced);
+    done = produced.done;
+  }
+
+ };
 
 interpreter(producerGeneratorFn);
