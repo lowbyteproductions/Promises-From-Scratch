@@ -1,3 +1,4 @@
+
 const states = {
   PENDING: 'pending',
   FULFILLED: 'fulfilled',
@@ -159,18 +160,44 @@ const delay = (timeInMs, value) => new LLJSPromise(resolve => {
   }, timeInMs);
 });
 
-readFile(path.join(__dirname, 'indexxxx.js'), 'utf8')
-.then(text => {
-  console.log(`${text.length} characters read`);
-  return delay(2000, text.replace(/[aeiou]/g, ''));
-})
-.then(newText => {
-  console.log(newText.slice(0, 200));
-})
-.catch(err => {
-  console.error('An error occured!');
-  console.error(err);
-})
-.finally(() => {
+
+const asyncFn = promiseGeneratorFn => (...args) => {
+  const producer = promiseGeneratorFn(...args);
+
+  const interpreter = (lastValue) => {
+    const {value, done} = producer.next(lastValue);
+    if (!done) {
+      if (isThenable(value)) {
+        return value.then(
+          resolvedValue => interpreter(resolvedValue),
+          rejectedValue => interpreter(rejectedValue)
+        );
+      } else {
+        return interpreter(value);
+      }
+    } else {
+      if (!isThenable(value)) {
+        return LLJSPromise.resolve(value);
+      }
+      return value;
+    }
+  }
+
+  return interpreter();
+}
+
+const doAsyncStuff = asyncFn(function* () {
+  try {
+    const text = yield readFile(path.join(__dirname, 'index.js'), 'utf8');
+    console.log(`${text.length} characters read`);
+
+    const withoutVowels = yield delay(2000, text.replace(/[aeiou]/g, ''));
+    console.log(withoutVowels.slice(0, 200));
+  } catch (err) {
+    console.error('An error occured!');
+    console.error(err);
+  }
   console.log('--- All done! ---');
 });
+
+doAsyncStuff();
