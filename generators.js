@@ -14,6 +14,10 @@ const interpreter = generatorFn => {
 
   let produced = producer.next();
   interpreterLog('Got produced', produced);
+  produced = producer.next();
+  interpreterLog('Got produced', produced);
+  produced = producer.next();
+  interpreterLog('Got produced', produced);
 };
 
 interpreter(producerGeneratorFn);
