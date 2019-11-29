@@ -14,11 +14,13 @@ const interpreter = generatorFn => {
   interpreterLog('Creating the generator object');
   const producer = generatorFn("starting value");
   let done = false;
+  let lastValue = undefined;
 
   while (!done) {
-    let produced = producer.next();
+    let produced = producer.next(lastValue);
     interpreterLog('Got produced', produced);
     done = produced.done;
+    lastValue = produced.value;
   }
 
  };
