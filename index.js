@@ -188,7 +188,7 @@ const asyncFn = promiseGeneratorFn => (...args) => {
 
 const doAsyncStuff = asyncFn(function* () {
   try {
-    const text = yield readFile(path.join(__dirname, 'index.js'), 'utf8');
+    const text = yield readFile(path.join(__dirname, 'indexxxx.js'), 'utf8');
     console.log(`${text.length} characters read`);
 
     const withoutVowels = yield delay(2000, text.replace(/[aeiou]/g, ''));
