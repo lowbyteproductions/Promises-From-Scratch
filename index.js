@@ -164,13 +164,16 @@ const delay = (timeInMs, value) => new LLJSPromise(resolve => {
 const asyncFn = promiseGeneratorFn => (...args) => {
   const producer = promiseGeneratorFn(...args);
 
-  const interpreter = (lastValue) => {
-    const {value, done} = producer.next(lastValue);
+  const interpreter = (lastValue, wasError) => {
+    const {value, done} = (wasError)
+      ? producer.throw(lastValue)
+      : producer.next(lastValue);
+
     if (!done) {
       if (isThenable(value)) {
         return value.then(
           resolvedValue => interpreter(resolvedValue),
-          rejectedValue => interpreter(rejectedValue)
+          rejectedValue => interpreter(rejectedValue, true)
         );
       } else {
         return interpreter(value);
